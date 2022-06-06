@@ -1,4 +1,5 @@
 <?php
+
 if (isset($_POST['submit'])) {
     include 'dbconnect.php';
     $email = $_POST['email'];
@@ -148,4 +149,5 @@ if (isset($_POST['submit'])) {
             }
         }
     </script>
+
 </html>
