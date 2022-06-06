@@ -9,13 +9,31 @@ if (!isset($_SESSION['sessionid'])) {
   echo "<script> window.location.replace('login.php')</script>";
 }
 
+$results_per_page = 10;
+if (isset($_GET['pageno'])) {
+  $pageno = (int)$_GET['pageno'];
+  $page_first_result = ($pageno - 1) * $results_per_page;
+} else {
+  $pageno = 1;
+  $page_first_result = 0;
+}
+
 include_once("dbconnect.php");
   $sqlsubject = "SELECT * FROM tbl_subjects";
+  $stmt = $conn->prepare($sqlsubject);
+  $stmt->execute();
+  $number_of_result = $stmt->rowCount();
+  $number_of_page = ceil($number_of_result / $results_per_page);
+  $sqlsubject = $sqlsubject . " LIMIT $page_first_result , $results_per_page";
   $stmt = $conn->prepare($sqlsubject);
   $stmt->execute();
   $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
   $rows = $stmt->fetchAll();
   $conn= null;
+
+  function truncate($string, $length, $dots = "...") {
+    return (strlen($string) > $length) ? substr($string, 0, $length - strlen($dots)) . $dots : $string;
+}
 ?>
 
 <!DOCTYPE html>
@@ -36,12 +54,6 @@ include_once("dbconnect.php");
     body, h1, h2, h3, h4, h5, h6 {
         font-family: "Karma", serif
     }
-
-    img {
-        width: 200px;
-        height: 300px;
-        object-fit: cover;
-    }
 </style>
 <body>
 <div class="w3-top">
@@ -50,7 +62,7 @@ include_once("dbconnect.php");
       <div class="w3-bar w3-white">
         <a href="" class="w3-bar-item w3-button w3-hide-small w3-right">Profile</a>
         <a href="" class="w3-bar-item w3-button w3-hide-small w3-right">Subscription</a>
-        <a href="" class="w3-bar-item w3-button w3-hide-small w3-right">Tutors</a>
+        <a href="../php/tutors.php" class="w3-bar-item w3-button w3-hide-small w3-right">Tutors</a>
         <a href="../php/index.php" class="w3-bar-item w3-button w3-hide-small w3-right">Courses</a>
         <a href="javascript:void(0)" onClick="sideMenu()"
           class="w3-bar-item w3-button w3-hide-large w3-hide-medium">&#9776</a>
@@ -59,7 +71,7 @@ include_once("dbconnect.php");
 
       <div id="idsidebar" class="w3-bar-block w3-white w3-hide-medium w3-hide-large w3-hide">
         <a href="../php/index.php" class="w3-bar-item w3-button">Courses</a>
-        <a href="" class="w3-bar-item w3-button">Tutors</a>
+        <a href="../php/tutors.php" class="w3-bar-item w3-button">Tutors</a>
         <a href="" class="w3-bar-item w3-button">Subscription</a>
         <a href="" class="w3-bar-item w3-button">Profile</a>
       </div>
@@ -68,39 +80,37 @@ include_once("dbconnect.php");
 
     <!-- Header -->
   <header class="w3-display-container w3-content" style="max-width:1400px;" id="home">
-    <img class="w3-image" src="../res/pics/courses.jpg" alt="Homepage" style="width:1400px; height:300px;">
-    <style>
-      img {
-        filter: brightness(40%);
-      }
-    </style>
+    <img class="w3-image" src="../res/pics/courses.jpg" alt="Homepage" style="width:1400px; height:300px; object-fit: cover; filter: brightness(50%);">
     <div class="w3-display-middle w3-margin-top w3-margin-left w3-center" style="max-width:1400px;">
-      <h1 class="w3-xxlarge w3-text-white"><span class=" w3-text-light-grey"><b>Welcome to MYTutor</b></span></h1>
+      <h1 class="w3-xxlarge w3-text-white"><span class=" w3-text-light-grey"><b>Courses that Offered by MY Tutor</b></span></h1>
       </h1>
     </div>
   </header>
 
   </div>
-    <div class="w3-grid-template">
+    <div class="w3-grid-template w3-margin-right w3-margin-left">
       <?php
         $i = 0;
         foreach ($rows as $subjects) {
         $i++;
-        $subid = $subject['subject_id'];
-        $subname = truncate($subjectx['subject_name'],15);
-        $subprice = number_format((float)$subject['subject_price'], 2, '.', '');
-        $subsessionss = $subject['product_sessions'];
-          echo "<div class='w3-card-4 w3-round' style='margin:4px'>
-            <header class='w3-container w3-blue'><h5><b>$prname</b></h5></header>";
-          echo "<a href='subjectdetails.php?subid=$subid' style='text-decoration: none;'> <img class='w3-image' src=../../assets/sourses/$subid.jpg" .
-              " onerror=this.onerror=null;this.src='../../res/pics/empty.jpg'"
-              . " style='width:100%;height:250px'></a><hr>";
-          }
-        ?>
+        $subid = $subjects['subject_id'];
+        $subname = truncate($subjects['subject_name'],60);
+        $subprice = number_format((float)$subjects['subject_price'], 2, '.', '');
+        $subsessions = $subjects['subject_sessions'];
+        $subrate = $subjects['subject_rating'];
+        echo "<div class='w3-card-4 w3-round' style='margin: 10px'><header class='w3-container w3-black'><b>$subname</b>
+        </header><p><img class='w3-image' src=../assets/courses/$subid.png" .
+            " onerror=this.onerror=null;this.src='../res/images/users/profile.png' style='height: 150px; display: block; margin: auto'></p>
+            <hr/>
+            <p class='w3-container w3-center'>Price: RM$subprice<br />Session: $subsessions<br />Ratings: $subrate</p>
+        </div>";
+    }
+
+    echo "</table>";
+?>}
     </div>
     <br>
 
-    <!--page-->
     <?php
     $num = 1;
     if ($pageno == 1) {
