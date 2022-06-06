@@ -9,13 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="../js/menu.js" defer></script>
   <style>
-    body,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
+    body, h1, h2, h3, h4, h5, h6 {
       font-family: "Karma", serif
     }
 
@@ -50,7 +44,7 @@
       }
     }
 
-    /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+    /* Responsive layout */
     @media screen and (max-width: 600px) {
       .column {
         flex: 100%;
@@ -69,11 +63,18 @@
 <body>
   <div class="w3-top">
     <div class="w3-bar w3-white w3-wide w3-padding w3-card">
-      <a href="index.php" class="w3-bar-item w3-button"><b>MYTutor</b></a>
       <!-- Float links to the right. Hide them on small screens -->
-      <div class="w3-right w3-hide-small">
-        <a href="php/login.php" class="w3-bar-item w3-button">Log In</a>
+      <div class="w3-bar w3-white">
+        <a href="php/login.php" class="w3-bar-item w3-button w3-hide-small w3-right">Log In</a>
+        <a href="php/signup.php" class="w3-bar-item w3-button w3-hide-small w3-right">Sign Up</a>
+        <a href="javascript:void(0)" onClick="sideMenu()"
+          class="w3-bar-item w3-button w3-hide-large w3-hide-medium">&#9776</a>
+          <a href="index.php" class="w3-bar-item w3-button"><b>MYTutor</b></a>
+      </div>
+
+      <div id="idsidebar" class="w3-bar-block w3-white w3-hide-medium w3-hide-large w3-hide">
         <a href="php/signup.php" class="w3-bar-item w3-button">Sign Up</a>
+        <a href="php/login.php" class="w3-bar-item w3-button">Log In</a>
       </div>
     </div>
   </div>
@@ -141,6 +142,17 @@
       <p>Design and Edited by</p>
       <p><b>Shyvonne Ho Yue Lynn 279733.</b></p>
     </footer>
+
+    <script>
+        function sideMenu() {
+            var x = document.getElementById("idsidebar");
+            if (x.className.indexOf("w3-show") == -1) {
+                x.className += " w3-show";
+            } else {
+                x.className = x.className.replace(" w3-show", "");
+            }
+        }
+    </script>
 </body>
 
 </html>
