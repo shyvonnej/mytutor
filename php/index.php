@@ -1,13 +1,23 @@
 <?php
-include_once("dbconnect.php");
 session_start();
-if (!isset($_SESSION['sessionid'])) {
-  $user_email = $_SESSION['user_email'];
-  $user_name = $_SESSION['user_name'];
-  $user_phone = $_SESSION['user_phone'];
-  echo "<script>alert('Session not available. Please login');</script>";
-  echo "<script> window.location.replace('login.php')</script>";
-}
+include_once("dbconnect.php");
+
+  if (!isset($_SESSION['sessionid'])) {
+    echo "<script>alert('Session not available. Please login');</script>";
+    echo "<script> window.location.replace('../php/index.php')</script>";
+  } else {
+      $email = $_SESSION['email'];
+  }
+
+  if(isset($_GET['submit'])) {
+    $operation = $_GET['submit'];
+    if($operation == 'search') {
+      $search = $_GET['search_sub'];
+      $sqlsubject = "SELECT * FROM tbl_subjects WHERE subject_name LIKE '%$search%'";
+      }
+    } else {
+      $sqlsubject = "SELECT * FROM tbl_subjects";
+    }
 
 $results_per_page = 10;
 if (isset($_GET['pageno'])) {
@@ -18,8 +28,6 @@ if (isset($_GET['pageno'])) {
   $page_first_result = 0;
 }
 
-include_once("dbconnect.php");
-  $sqlsubject = "SELECT * FROM tbl_subjects";
   $stmt = $conn->prepare($sqlsubject);
   $stmt->execute();
   $number_of_result = $stmt->rowCount();
@@ -43,7 +51,7 @@ include_once("dbconnect.php");
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Courses</title>
     <script src="../js/menu.js" defer></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="../css/style.css">
@@ -82,32 +90,51 @@ include_once("dbconnect.php");
   <header class="w3-display-container w3-content" style="max-width:1400px;" id="home">
     <img class="w3-image" src="../res/pics/courses.jpg" alt="Homepage" style="width:1400px; height:300px; object-fit: cover; filter: brightness(50%);">
     <div class="w3-display-middle w3-margin-top w3-margin-left w3-center" style="max-width:1400px;">
-      <h1 class="w3-xxlarge w3-text-white"><span class=" w3-text-light-grey"><b>Courses that Offered by MY Tutor</b></span></h1>
+      <h1 class="w3-xxlarge w3-text-white"><span class=" w3-text-light-grey"><?php echo "Welcome, <b>$email</b>!"; ?></span></h1>
       </h1>
     </div>
   </header>
 
+  <div class="w3-card w3-container w3-padding w3-round w3-margin-top w3-center" style="width:92%; margin:auto">
+        <h3><b>Course Search</b></h3>
+        <form>
+            <div class="w3-row">
+                <div class="box" style="margin-left:auto; margin-right:auto; width:1000px;">
+                    <p><input class="w3-input w3-block w3-round w3-border w3-center" type="search_sub" name="search_sub" placeholder="Enter search terms" /></p>
+                </div>
+                <div class="w3-half" style="padding-right:4px">
+                </div>
+            </div>
+            <button class="w3-button w3-teal w3-round w3-middle w3-margin-bottom" type="submit" name="submit" value="search">Search</button>
+        </form>
   </div>
-    <div class="w3-grid-template w3-margin-right w3-margin-left">
+
+  </div>
+    <div class="w3-grid-template" style="width:93%; margin:auto">
       <?php
         $i = 0;
         foreach ($rows as $subjects) {
         $i++;
+
         $subid = $subjects['subject_id'];
         $subname = truncate($subjects['subject_name'],60);
         $subprice = number_format((float)$subjects['subject_price'], 2, '.', '');
         $subsessions = $subjects['subject_sessions'];
         $subrate = $subjects['subject_rating'];
-        echo "<div class='w3-card-4 w3-round' style='margin: 10px'><header class='w3-container w3-black'><b>$subname</b>
-        </header><p><img class='w3-image' src=../assets/courses/$subid.png" .
-            " onerror=this.onerror=null;this.src='../res/images/users/profile.png' style='height: 150px; display: block; margin: auto'></p>
-            <hr/>
-            <p class='w3-container w3-center'>Price: RM$subprice<br />Session: $subsessions<br />Ratings: $subrate</p>
+
+        echo "<a style='text-decoration: none' href='subjectdetails.php?subid=$subid'><div class='w3-card-4 w3-round' style='margin: 12px'>
+        <header class='w3-container w3-teal w3-center' style='height:50px; font-size: 15px;'><b>$subname</b>
+        </header>
+        <p><img class='w3-image' src=../assets/courses/$subid.png" .
+        " onerror=this.onerror=null;this.src='../res/images/users/profile.png' style='height: 150px; display: block; margin: auto'></p>
+        <hr/>
+        <p class='w3-container w3-center'>
+          Price: RM$subprice<br/>
+          Session: $subsessions<br/>
+          Ratings: $subrate</p>
         </div>";
     }
-
-    echo "</table>";
-?>}
+?>
     </div>
     <br>
 
@@ -157,6 +184,5 @@ include_once("dbconnect.php");
             }
         }
     </script>
-
     </body>
 </html>
